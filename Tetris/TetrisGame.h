@@ -62,7 +62,7 @@ private:
 	void DrawCell(Coord, Cell);
 
 	bool CanFit(const Shape*, Coord, int);
-	void DrawTetro(const Shape* shape, Coord coord, int rot);
+	void DrawTetro(const Shape* shape, Coord coord, int rot, char clearColor = 0);
 	void DrawTetroOnBoard();
 	//inline void Undraw() { Draw(Cell::Empty); }
 

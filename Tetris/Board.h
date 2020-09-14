@@ -22,6 +22,7 @@ public:
 	inline int get_width() { return width; }
 	inline int get_height() { return height; }
 
+	void ClearRow(int row);
 	void clear();
 
 	inline Cell& operator[](const Coord& c) { return get_cell(c); }
