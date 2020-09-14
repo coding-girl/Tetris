@@ -24,6 +24,7 @@ public:
 
 	void clear();
 
+	inline Cell& operator[](const Coord& c) { return get_cell(c); }
 
 	inline Cell& get_cell(int x, int y) { return cells[y*width + x]; }
 	inline Cell& get_cell(Coord coord) { return get_cell(coord.x, coord.y); }

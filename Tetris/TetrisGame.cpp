@@ -1,7 +1,7 @@
 #include "TetrisGame.h"
 
 
-TetrisGame::TetrisGame() :board(boardSize)
+TetrisGame::TetrisGame() :board(boardSize), speed(0.7)
 {
 	mTetNext = Shape::GetRandomShape();
 	StartNewGame();
@@ -15,7 +15,26 @@ void TetrisGame::UpdateF(float deltaTime)
 {
 	if (running)
 	{
+		tickTimer -= deltaTime;
+		if (tickTimer < 0)
+		{
+			Undraw();
+			if (CanFit(mTet, mObjCoord + Coord(0, 1), rot))
+			{
+				mObjCoord.y++;
+				Draw();
+			}
+			else
+			{
+				Draw();
+				ClearLines();
+				SpawnTetro();
+			}
 
+
+			tickTimer = speed;
+			RedrawBoard();
+		}
 	}
 }
 
@@ -52,6 +71,7 @@ void TetrisGame::StartNewGame()
 	RedrawGame();
 	SpawnTetro();
 	running = true;
+	tickTimer = speed;
 }
 
 void TetrisGame::ClearLines()
@@ -93,9 +113,14 @@ void TetrisGame::DrawCell(Coord pt, Cell cell)
 	SetChar(pt.x + 1, pt.y + 1, cell == Cell::Empty ? '.' : '%');
 }
 
-bool TetrisGame::CanFit(const Shape *, Coord, int)
+bool TetrisGame::CanFit(const Shape * tet, Coord pt, int rot)
 {
-	return false;
+	for (Coord local; local.y < 4; local.y++)
+		for (local.x = 0; local.x < 4; local.x++)
+			if (tet->IsSolid(local, rot) && (!IsInBorder(pt + local) || board[pt + local] == Cell::Filled))
+				return false;
+
+	return true;
 }
 
 void TetrisGame::Draw(Cell val)
@@ -103,7 +128,7 @@ void TetrisGame::Draw(Cell val)
 	for (Coord local; local.y < 4; local.y++)
 		for (local.x = 0; local.x < 4; local.x++)
 			if (mTet->IsSolid(local, rot) && IsInBorder(mObjCoord + local))
-				DrawCell(mObjCoord + local, val);
+				board[mObjCoord + local] = val;
 }
 
 bool TetrisGame::IsInBorder(Coord c)
