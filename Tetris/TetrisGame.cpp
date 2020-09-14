@@ -2,27 +2,34 @@
 
 #include <ctime>
 
-TetrisGame::TetrisGame() 
-	:board(boardSize), speed(0.7), mTetNext(nullptr)
+TetrisGame::TetrisGame(): BaseApp(screenWidth, screenHeight),
+	board(boardSize), speed(0.7)
 {
 	srand(time(0));
 
-	
 	StartNewGame();
 }
 
 void TetrisGame::KeyPressed(int btnCode)
 {
-	if (btnCode == 77 || btnCode == 75)
-		TryMoveTo(mObjCoord.x + ((btnCode == 77) ? 1 : -1), mObjCoord.y, rot);
-
-	if (btnCode == 32)   
-		TryMoveTo(mObjCoord.x, mObjCoord.y, (rot + 1) % 4);
-
-	if (btnCode == 80)
+	if (running)
 	{
-		while (TryMoveTo(mObjCoord.x, mObjCoord.y + 1, rot));
-		SpawnTetro();
+		if (btnCode == 77 || btnCode == 75)
+			TryMoveTo(mObjCoord.x + ((btnCode == 77) ? 1 : -1), mObjCoord.y, rot);
+
+		if (btnCode == 32)
+			TryMoveTo(mObjCoord.x, mObjCoord.y, (rot + 1) % 4);
+
+		if (btnCode == 80)
+		{
+			while (TryMoveTo(mObjCoord.x, mObjCoord.y + 1, rot));
+			SpawnTetro();
+		}
+	}
+	else
+	{
+		if (btnCode == 13)
+			StartNewGame();
 	}
 }
 
@@ -42,6 +49,16 @@ void TetrisGame::UpdateF(float deltaTime)
 	RedrawGame();
 }
 
+void TetrisGame::SetChar(Coord pt, wchar_t ch)
+{
+	Parent::SetChar(pt.x, pt.y, ch);
+}
+
+void TetrisGame::SetChar(int x, int y, wchar_t ch)
+{
+	Parent::SetChar(x, y, ch);
+}
+
 void TetrisGame::DrawRect(Coord coord, Coord size, char ch)
 {
 	DrawLine(coord, size.x, Axis::Horizontal, ch);
@@ -56,7 +73,7 @@ void TetrisGame::DrawLine(Coord topLeft, int length, Axis axis, char ch)
 	Coord curr = topLeft;
 	for (int i = 0; i < length; i++)
 	{
-		SetChar(curr.x, curr.y, ch);
+		SetChar(curr, ch);
 		curr[axis]++;
 	}
 }
@@ -69,15 +86,18 @@ void TetrisGame::DrawText(int x, int y, string text)
 
 void TetrisGame::GameOver()
 {
+	running = false;
 }
 
 void TetrisGame::StartNewGame()
 {
+	mTet = mTetNext = nullptr;
 	board.clear();
 	SpawnTetro();
 	RedrawGame();
 	running = true;
 	tickTimer = speed;
+	score = 0;
 }
 
 void TetrisGame::ClearLines()
@@ -107,9 +127,12 @@ void TetrisGame::SpawnTetro()
 	}
 	else mTet = Shape::GetRandomShape();
 
-	mTetNext = Shape::GetRandomShape();
 	mObjCoord = Coord(4, 0);
 	rot = 0;
+	if (!CanFit(mTet, mObjCoord, rot))
+		GameOver();
+
+	mTetNext = Shape::GetRandomShape();
 	tickTimer = speed;
 }
 
@@ -124,11 +147,20 @@ bool TetrisGame::TryMoveTo(int x, int y, int rot)
 	return false;
 }
 
+void TetrisGame::ClearRect(Rect rect)
+{
+	for (Coord local; local.y < rect.h; local.y++)
+		for (local.x = 0; local.x < rect.w; local.x++)
+			SetChar(rect.topLeft + local, ' ');
+}
+
 void TetrisGame::RedrawGame()
 {
-	Coord boardLoc(0, 0);
-	Coord nextShapeViewLoc(boardSize.x + 1, 0);
-	Coord scoreViewLoc(0, boardSize.y + 1);
+	ClearScreen();
+
+	//Coord boardLoc(screenWidth / 2 - (screenWidth - (boardSize.x + 7)) / 2, 0);
+	Coord nextShapeViewLoc = boardLoc + Coord(boardSize.x + 1, 0);
+	Coord scoreViewLoc = boardLoc + Coord(0, boardSize.y + 1);
 
 	DrawRect(boardLoc, boardSize + Coord(1, 1), '#');
 	DrawRect(nextShapeViewLoc, Coord(6, boardSize.y + 1), '#');
@@ -136,9 +168,18 @@ void TetrisGame::RedrawGame()
 
 	RedrawBoard();
 
-	DrawTetro(mTetNext, nextShapeViewLoc + Coord(1, 3), 0, ' ');
+	DrawTetro(mTetNext, nextShapeViewLoc + Coord(1, 3) - boardLoc, 0, ' ');
 
 	DrawText(scoreViewLoc.x + 3, scoreViewLoc.y + 2, "Score: " + to_string(score));
+
+
+	if (!running)
+	{
+		Rect msgBox(4, boardSize.y * 2 / 3, screenSize.x - 8, 7);
+		ClearRect(msgBox);
+		DrawText(msgBox.x + 4, msgBox.y + 1, "You lost!");
+		DrawText(msgBox.x + 4, msgBox.y + 2, "Your final score: " + to_string(score));
+	}
 }
 
 void TetrisGame::RedrawBoard()
@@ -152,7 +193,7 @@ void TetrisGame::RedrawBoard()
 
 void TetrisGame::DrawCell(Coord pt, Cell cell)
 {
-	SetChar(pt.x + 1, pt.y + 1, cell == Cell::Empty ? '.' : TetroChar);
+	SetChar(pt + boardLoc + 1, cell == Cell::Empty ? '.' : TetroChar);
 }
 
 bool TetrisGame::CanFit(const Shape * tet, Coord pt, int rot)
@@ -170,9 +211,9 @@ void TetrisGame::DrawTetro(const Shape* shape, Coord coord, int rot, char clearC
 	for (Coord local; local.y < 4; local.y++)
 		for (local.x = 0; local.x < 4; local.x++)
 			if (shape->IsSolid(local, rot))
-				SetChar(coord.x + local.x + 1, coord.y + local.y + 1, TetroChar);
+				SetChar(coord + local + boardLoc + 1, TetroChar);
 			else if (clearColor != 0)
-				SetChar(coord.x + local.x + 1, coord.y + local.y + 1, clearColor);
+				SetChar(coord + local + boardLoc + 1, clearColor);
 }
 
 void TetrisGame::DrawTetroOnBoard()

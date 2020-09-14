@@ -27,6 +27,7 @@ struct Coord
 	inline int& operator[](Axis dir) { return vals[(int)dir]; }
 
 	inline Coord operator+(const Coord& b)const { return Coord(x + b.x, y + b.y); }
+	inline Coord operator-(const Coord& b)const { return Coord(x - b.x, y - b.y); }
 };
 
 struct Rect
@@ -41,6 +42,7 @@ struct Rect
 	};
 
 	Rect() {}
+	Rect(Coord topLeft, Coord size):topLeft(topLeft), size(size){}
 	Rect(int x, int y, int w, int h) :x(x), y(y), size{ w,h }
 	{
 	}

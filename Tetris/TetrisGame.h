@@ -15,7 +15,12 @@ class TetrisGame :
 	typedef BaseApp Parent;
 
 private:
+	static const int screenWidth = 40;
+	static const int screenHeight = 25;
+	const Coord screenSize = Coord(screenWidth, screenHeight);
 	const Coord boardSize = Coord(9, 16);
+
+	const Coord boardLoc = Coord((screenWidth - (boardSize.x + 7)) / 2, 1); 
 	
 	const wchar_t TetroChar = L'◘';
 
@@ -40,14 +45,6 @@ public:
 	virtual void KeyPressed(int btnCode);
 	virtual void UpdateF(float deltaTime);
 
-	void DrawRect(Coord, Coord, char);
-	void DrawLine(Coord topLeft, int length, Axis Axis, char);
-	void DrawText(int x, int y, string text);
-
-	inline Board* get_board() { return &board; }
-	inline const Shape* get_next_shape() { return mTetNext; }
-	inline int get_score() { return score; }
-
 private:
 	void GameOver();
 	void StartNewGame();
@@ -57,6 +54,8 @@ private:
 
 	bool TryMoveTo(int x, int y, int rot);
 
+	inline void ClearScreen() { ClearRect(Rect(Coord(), screenSize)); }
+	void ClearRect(Rect);
 	void RedrawGame();
 	void RedrawBoard();
 	void DrawCell(Coord, Cell);
@@ -65,6 +64,12 @@ private:
 	void DrawTetro(const Shape* shape, Coord coord, int rot, char clearColor = 0);
 	void DrawTetroOnBoard();
 	//inline void Undraw() { Draw(Cell::Empty); }
+
+	void SetChar(Coord, wchar_t);
+	void SetChar(int x, int y, wchar_t);
+	void DrawRect(Coord, Coord, char);
+	void DrawLine(Coord topLeft, int length, Axis Axis, char);
+	void DrawText(int x, int y, string text);
 
 
 
