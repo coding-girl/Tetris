@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "BaseApp.h"
 #include "Board.h"
@@ -17,7 +17,7 @@ class TetrisGame :
 private:
 	const Coord boardSize = Coord(9, 16);
 	
-	const char TetroChar = '%';
+	const wchar_t TetroChar = L'◘';
 
 
 

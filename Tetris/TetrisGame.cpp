@@ -2,11 +2,12 @@
 
 #include <ctime>
 
-TetrisGame::TetrisGame() :board(boardSize), speed(0.7)
+TetrisGame::TetrisGame() 
+	:board(boardSize), speed(0.7), mTetNext(nullptr)
 {
 	srand(time(0));
 
-	mTetNext = Shape::GetRandomShape();
+	
 	StartNewGame();
 }
 
@@ -21,6 +22,7 @@ void TetrisGame::KeyPressed(int btnCode)
 	if (btnCode == 80)
 	{
 		while (TryMoveTo(mObjCoord.x, mObjCoord.y + 1, rot));
+		SpawnTetro();
 	}
 }
 
@@ -31,17 +33,8 @@ void TetrisGame::UpdateF(float deltaTime)
 		tickTimer -= deltaTime;
 		if (tickTimer < 0)
 		{
-			if (CanFit(mTet, mObjCoord + Coord(0, 1), rot))
-			{
-				mObjCoord.y++;
-			}
-			else
-			{
-				DrawTetroOnBoard();
-				ClearLines();
+			if (!TryMoveTo(mObjCoord.x, mObjCoord.y + 1, rot))
 				SpawnTetro();
-			}
-
 
 			tickTimer = speed;
 		}
@@ -106,10 +99,18 @@ void TetrisGame::ClearLines()
 
 void TetrisGame::SpawnTetro()
 {
-	mTet = mTetNext;
+	if (mTet)
+	{
+		DrawTetroOnBoard();
+		ClearLines();
+		mTet = mTetNext;
+	}
+	else mTet = Shape::GetRandomShape();
+
 	mTetNext = Shape::GetRandomShape();
 	mObjCoord = Coord(4, 0);
 	rot = 0;
+	tickTimer = speed;
 }
 
 bool TetrisGame::TryMoveTo(int x, int y, int rot)
@@ -151,7 +152,7 @@ void TetrisGame::RedrawBoard()
 
 void TetrisGame::DrawCell(Coord pt, Cell cell)
 {
-	SetChar(pt.x + 1, pt.y + 1, cell == Cell::Empty ? '.' : '%');
+	SetChar(pt.x + 1, pt.y + 1, cell == Cell::Empty ? '.' : TetroChar);
 }
 
 bool TetrisGame::CanFit(const Shape * tet, Coord pt, int rot)
