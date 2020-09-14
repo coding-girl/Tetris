@@ -52,9 +52,11 @@ private:
 
 	void RedrawGame();
 	void RedrawBoard();
+	void DrawCell(Coord, Cell);
 
 	bool CanFit(const Shape*, Coord, int);
-	void Draw(bool clear);
+	void Draw(Cell val = Cell::Filled);
+	inline void Undraw() { Draw(Cell::Empty); }
 
 
 

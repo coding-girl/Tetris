@@ -1,5 +1,10 @@
 #pragma once
 
+#include <iostream>
+#include <string>
+
+using namespace std;
+
 enum Axis
 {
 	Horizontal,
@@ -16,6 +21,7 @@ struct Coord
 	};
 
 	Coord() :x(0), y(0) {}
+	Coord(int xy) :x(xy), y(xy) {}
 	Coord(int x, int y) :x(x), y(y) {}
 
 	inline int& operator[](Axis dir) { return vals[(int)dir]; }
