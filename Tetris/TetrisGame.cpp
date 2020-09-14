@@ -1,7 +1,7 @@
 #include "TetrisGame.h"
 
 
-TetrisGame::TetrisGame()
+TetrisGame::TetrisGame() :board(boardSize)
 {
 	StartNewGame();
 }
@@ -43,6 +43,7 @@ void TetrisGame::GameOver()
 
 void TetrisGame::StartNewGame()
 {
+	board.clear();
 	RedrawGame();
 }
 
@@ -63,6 +64,15 @@ void TetrisGame::RedrawGame()
 	DrawRect(boardLoc, boardSize + Coord(1, 1), '#');
 	DrawRect(nextShapeViewLoc, Coord(6, boardSize.y + 1), '#');
 	DrawRect(scoreViewLoc, Coord(boardSize.x + 7, 5), '#');
+
+	RedrawBoard();
+}
+
+void TetrisGame::RedrawBoard()
+{
+	for (int j = 0; j < boardSize.y; j++)
+		for (int i = 0; i < boardSize.x; i++)
+			SetChar(i + 1, j + 1, board.get_cell(i, j) == Cell::Empty ? '.' : '%');
 }
 
 bool TetrisGame::CanFit(const Shape *, Coord, int)

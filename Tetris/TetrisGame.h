@@ -15,7 +15,7 @@ class TetrisGame :
 	typedef BaseApp Parent;
 
 private:
-	const Coord boardSize = Coord(8, 17);
+	const Coord boardSize = Coord(9, 16);
 	Board board;
 
 	int score;
@@ -51,6 +51,7 @@ private:
 
 
 	void RedrawGame();
+	void RedrawBoard();
 
 	bool CanFit(const Shape*, Coord, int);
 	void Draw(bool clear);

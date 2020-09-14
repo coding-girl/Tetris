@@ -16,7 +16,7 @@ private:
 	Cell* cells;
 
 public:
-	Board(int width = 1000, int height = 1000);
+	Board(Coord size);
 
 
 	inline int get_width() { return width; }
