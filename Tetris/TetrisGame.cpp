@@ -9,6 +9,16 @@ TetrisGame::TetrisGame() :board(boardSize), speed(0.7)
 
 void TetrisGame::KeyPressed(int btnCode)
 {
+	if (btnCode == 77 || btnCode == 75)
+		TryMoveTo(mObjCoord.x + ((btnCode == 77) ? 1 : -1), mObjCoord.y, rot);
+
+	if (btnCode == 32)   
+		TryMoveTo(mObjCoord.x, mObjCoord.y, (rot + 1) % 4);
+
+	if (btnCode == 80)
+	{
+		while (TryMoveTo(mObjCoord.x, mObjCoord.y + 1, rot));
+	}
 }
 
 void TetrisGame::UpdateF(float deltaTime)
@@ -18,24 +28,22 @@ void TetrisGame::UpdateF(float deltaTime)
 		tickTimer -= deltaTime;
 		if (tickTimer < 0)
 		{
-			Undraw();
 			if (CanFit(mTet, mObjCoord + Coord(0, 1), rot))
 			{
 				mObjCoord.y++;
-				Draw();
 			}
 			else
 			{
-				Draw();
+				DrawTetroOnBoard();
 				ClearLines();
 				SpawnTetro();
 			}
 
 
 			tickTimer = speed;
-			RedrawBoard();
 		}
 	}
+	RedrawBoard();
 }
 
 void TetrisGame::DrawRect(Coord coord, Coord size, char ch)
@@ -68,8 +76,8 @@ void TetrisGame::GameOver()
 void TetrisGame::StartNewGame()
 {
 	board.clear();
-	RedrawGame();
 	SpawnTetro();
+	RedrawGame();
 	running = true;
 	tickTimer = speed;
 }
@@ -84,8 +92,17 @@ void TetrisGame::SpawnTetro()
 	mTetNext = Shape::GetRandomShape();
 	mObjCoord = Coord(4, 0);
 	rot = 0;
+}
 
-	Draw();
+bool TetrisGame::TryMoveTo(int x, int y, int rot)
+{
+	if (CanFit(mTet, Coord(x, y), rot))
+	{
+		mObjCoord = Coord(x, y);
+		this->rot = rot;
+		return true;
+	}
+	return false;
 }
 
 void TetrisGame::RedrawGame()
@@ -99,6 +116,10 @@ void TetrisGame::RedrawGame()
 	DrawRect(scoreViewLoc, Coord(boardSize.x + 7, 5), '#');
 
 	RedrawBoard();
+
+	DrawTetro(mTetNext, nextShapeViewLoc + Coord(1, 3), 0);
+
+	DrawText(scoreViewLoc.x + 3, scoreViewLoc.y + 2, "Score: " + to_string(score));
 }
 
 void TetrisGame::RedrawBoard()
@@ -106,6 +127,8 @@ void TetrisGame::RedrawBoard()
 	for (Coord local; local.y < boardSize.y; local.y++)
 		for (local.x = 0; local.x < boardSize.x; local.x++)
 			DrawCell(local, board.get_cell(local));
+
+	DrawTetro(mTet, mObjCoord, rot);
 }
 
 void TetrisGame::DrawCell(Coord pt, Cell cell)
@@ -123,12 +146,20 @@ bool TetrisGame::CanFit(const Shape * tet, Coord pt, int rot)
 	return true;
 }
 
-void TetrisGame::Draw(Cell val)
+void TetrisGame::DrawTetro(const Shape* shape, Coord coord, int rot)
+{
+	for (Coord local; local.y < 4; local.y++)
+		for (local.x = 0; local.x < 4; local.x++)
+			if (mTet->IsSolid(local, rot))
+				SetChar(coord.x + local.x + 1, coord.y + local.y + 1, TetroChar);
+}
+
+void TetrisGame::DrawTetroOnBoard()
 {
 	for (Coord local; local.y < 4; local.y++)
 		for (local.x = 0; local.x < 4; local.x++)
 			if (mTet->IsSolid(local, rot) && IsInBorder(mObjCoord + local))
-				board[mObjCoord + local] = val;
+				board[mObjCoord + local] = Cell::Filled;
 }
 
 bool TetrisGame::IsInBorder(Coord c)

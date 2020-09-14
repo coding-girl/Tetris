@@ -16,6 +16,12 @@ class TetrisGame :
 
 private:
 	const Coord boardSize = Coord(9, 16);
+	
+	const char TetroChar = '%';
+
+
+
+
 	Board board;
 
 	int score;
@@ -49,14 +55,16 @@ private:
 	void ClearLines();
 	void SpawnTetro();
 
+	bool TryMoveTo(int x, int y, int rot);
 
 	void RedrawGame();
 	void RedrawBoard();
 	void DrawCell(Coord, Cell);
 
 	bool CanFit(const Shape*, Coord, int);
-	void Draw(Cell val = Cell::Filled);
-	inline void Undraw() { Draw(Cell::Empty); }
+	void DrawTetro(const Shape* shape, Coord coord, int rot);
+	void DrawTetroOnBoard();
+	//inline void Undraw() { Draw(Cell::Empty); }
 
 
 
