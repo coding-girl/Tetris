@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Coordinations.h"
+#include "Coordinates.h"
 
 enum Cell
 {

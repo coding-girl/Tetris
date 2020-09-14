@@ -111,7 +111,7 @@ void TetrisGame::ClearLines()
 		if (!anyEmpty)
 		{
 			board.ClearRow(j);
-			score += 4;
+			score += 100;
 			j++;
 		}
 	}

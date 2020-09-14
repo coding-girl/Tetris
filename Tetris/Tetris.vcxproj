@@ -28,7 +28,7 @@
   <ItemGroup>
     <ClInclude Include="BaseApp.h" />
     <ClInclude Include="Board.h" />
-    <ClInclude Include="Coordinations.h" />
+    <ClInclude Include="Coordinates.h" />
     <ClInclude Include="PerformanceCounter.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="TetrisGame.h" />

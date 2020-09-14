@@ -18,7 +18,7 @@ private:
 	static const int screenWidth = 40;
 	static const int screenHeight = 25;
 	const Coord screenSize = Coord(screenWidth, screenHeight);
-	const Coord boardSize = Coord(9, 16);
+	const Coord boardSize = Coord(15, 19);
 
 	const Coord boardLoc = Coord((screenWidth - (boardSize.x + 7)) / 2, 1); 
 	
