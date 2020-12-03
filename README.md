@@ -9,4 +9,4 @@ This game written in accordance with provided template and technical task.
 <p><code>&#8595;</code> - fast drop </p>
 <p><code>space</code> - rotate shape</p>
 
-Score calculation
+
